@@ -2,8 +2,10 @@ use tokio;
 use tokio::time::{Duration, sleep};
 
 use crate::errors::AgentError;
+use crate::state::*;
 use crate::types::*;
 pub mod errors;
+pub mod state;
 pub mod types;
 
 async fn hello_world() {
