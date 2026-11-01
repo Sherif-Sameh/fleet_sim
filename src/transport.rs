@@ -1,3 +1,4 @@
+pub mod radio;
 use std::future::Future;
 
 use crate::error::Result;
