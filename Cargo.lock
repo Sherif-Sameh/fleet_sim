@@ -72,6 +72,7 @@ dependencies = [
 name = "fleet_sim"
 version = "0.1.0"
 dependencies = [
+ "glam",
  "serde",
  "sha2",
  "thiserror",
@@ -87,6 +88,12 @@ dependencies = [
  "typenum",
  "version_check",
 ]
+
+[[package]]
+name = "glam"
+version = "0.34.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "54af5066834d6c2d404eb26ea036a15b15d9ff80db510b9a73ff95ab07f30831"
 
 [[package]]
 name = "libc"
