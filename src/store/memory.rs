@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 use crate::error::{AgentError, Result};
-use crate::store::Store;
+use crate::store::{Blob, Store};
 use crate::types::{ContentHash, Package, Version};
 
 /// Package store for memory storage via a [`HashMap`].
@@ -15,15 +15,6 @@ use crate::types::{ContentHash, Package, Version};
 #[derive(Default)]
 pub struct MemoryStore {
     blobs: Mutex<HashMap<ContentHash, Blob>>,
-}
-
-/// Raw package blob struct.
-///
-/// Derives the [`Default`] trait.
-#[derive(Default)]
-struct Blob {
-    data: Vec<u8>,
-    complete: bool,
 }
 
 impl MemoryStore {
