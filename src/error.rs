@@ -1,4 +1,4 @@
-use crate::types::ContentHash;
+use crate::types::{ContentHash, RobotId};
 
 /// Errors that can be triggered by the on-board agent.
 ///
@@ -19,6 +19,15 @@ pub enum AgentError {
         expected: ContentHash,
         actual: ContentHash,
     },
+
+    #[error("{0} is out of radio range")]
+    OutOfRange(RobotId),
+
+    #[error("lost connection with {0}")]
+    ConnectionLost(RobotId),
+
+    #[error("failed to send to {0}")]
+    TransmissionFailed(RobotId),
 }
 
 pub type Result<T, E = AgentError> = std::result::Result<T, E>;

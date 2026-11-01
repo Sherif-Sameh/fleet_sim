@@ -6,6 +6,7 @@ pub mod error;
 pub mod message;
 pub mod state;
 pub mod store;
+pub mod transport;
 pub mod types;
 
 async fn hello_world() {
