@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::errors::{AgentError, Result};
+use crate::error::{AgentError, Result};
 use crate::types::Package;
 
 /// Agent update state. Defines the state transitions for package updates.

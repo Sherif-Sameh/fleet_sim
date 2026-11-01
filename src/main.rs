@@ -1,11 +1,11 @@
 use tokio;
 use tokio::time::{Duration, sleep};
 
-use crate::errors::AgentError;
+use crate::error::AgentError;
 use crate::message::*;
 use crate::state::*;
 use crate::types::*;
-pub mod errors;
+pub mod error;
 pub mod message;
 pub mod state;
 pub mod types;
