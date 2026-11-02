@@ -89,6 +89,9 @@ impl AgentHandle {
     }
 }
 
+/// On-board agent for managing the robot's state. Handles commands and peer-to-peer communication.
+///
+/// Started through the [`Agent::spawn`] method, which returns an [`AgentHandle`] for control.
 pub struct Agent<S, T>
 where
     S: Store,
@@ -101,7 +104,7 @@ where
     transport: T,
     cmd_rx: mpsc::Receiver<Command>,
     status_tx: watch::Sender<RobotStatus>,
-    pending: Option<Instant>,
+    sent_at: Option<Instant>,
     peers: HashMap<RobotId, PeerInfo>,
 }
 
@@ -133,7 +136,7 @@ where
             transport,
             cmd_rx,
             status_tx,
-            pending: None,
+            sent_at: None,
             peers: HashMap::new(),
         };
         tokio::spawn(agent.run());
@@ -168,7 +171,7 @@ where
         info!(robot = %self.id, "agent stopped");
     }
 
-    // ---- inputs -------------------------------------------------------------
+    /* inputs */
 
     fn on_command(&mut self, cmd: Command) {
         match cmd {
@@ -203,7 +206,7 @@ where
                 self.serve_chunk(from, hash, offset, max_len).await;
             }
             Message::ChunkResponse { hash, offset, data } => {
-                self.pending = None;
+                self.sent_at = None;
                 match self.store.write_chunk(&hash, offset, &data).await {
                     Ok(new_len) => {
                         self.transition(UpdateEvent::Progress(new_len)).unwrap();
@@ -230,7 +233,7 @@ where
         }
     }
 
-    // ---- periodic work ------------------------------------------------------
+    /* periodic */
 
     fn adopt_desired(&mut self, desired: PackageState) {
         if desired.supersedes(self.status.desired.as_ref()) {
@@ -322,7 +325,7 @@ where
             return;
         }
         if self
-            .pending
+            .sent_at
             .as_ref()
             .is_some_and(|p| p.elapsed() < self.cfg.peer_request_timeout)
         {
@@ -343,7 +346,7 @@ where
             max_len: self.cfg.chunk_size as u32,
         };
         if self.transport.send(peer, req).await.is_ok() {
-            self.pending = Some(Instant::now());
+            self.sent_at = Some(Instant::now());
         }
     }
 
@@ -365,7 +368,7 @@ where
         Ok(())
     }
 
-    // ---- status -------------------------------------------------------------
+    /* status */
 
     fn publish_status(&self) {
         self.status_tx.send_if_modified(|cur| {
