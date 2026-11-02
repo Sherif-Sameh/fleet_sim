@@ -49,7 +49,7 @@ impl Store for MemoryStore {
             .is_some_and(|b| b.complete)
     }
 
-    async fn remaining_len(&self, hash: &ContentHash) -> u64 {
+    async fn partial_len(&self, hash: &ContentHash) -> u64 {
         self.blobs
             .lock()
             .unwrap()

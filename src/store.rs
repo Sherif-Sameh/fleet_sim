@@ -17,7 +17,7 @@ pub trait Store: Send + Sync + 'static {
     fn is_complete(&self, hash: &ContentHash) -> impl Future<Output = bool> + Send;
 
     /// Returns the number of stored bytes of the package corresponding to `hash`.
-    fn remaining_len(&self, hash: &ContentHash) -> impl Future<Output = u64> + Send;
+    fn partial_len(&self, hash: &ContentHash) -> impl Future<Output = u64> + Send;
 
     /// Returns the bytes of the package corresponding to `hash` at the set `offset` for
     /// a maximum length of `max_len`. Errors if `hash` is not found.
