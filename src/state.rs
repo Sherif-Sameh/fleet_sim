@@ -13,7 +13,7 @@ pub enum UpdateState {
     Inactive,
     Downloading {
         target: Package,
-        received: u32,
+        received: u64,
     },
     Verifying {
         target: Package,
@@ -43,7 +43,7 @@ pub enum UpdateState {
 #[derive(Debug, Clone)]
 pub enum UpdateEvent {
     Begin(Package),
-    Progress(u32),
+    Progress(u64),
     DownloadComplete,
     Verified,
     Staged,
