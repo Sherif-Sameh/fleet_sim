@@ -32,6 +32,15 @@ impl MemoryStore {
 }
 
 impl Store for MemoryStore {
+    async fn have(&self) -> Vec<ContentHash> {
+        self.blobs
+            .lock()
+            .unwrap()
+            .iter()
+            .filter_map(|(&h, b)| (b.complete).then_some(h))
+            .collect()
+    }
+
     async fn is_complete(&self, hash: &ContentHash) -> bool {
         self.blobs
             .lock()

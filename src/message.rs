@@ -10,7 +10,7 @@ use crate::types::{ContentHash, Package, PackageState, RobotId};
 pub enum Message {
     Gossip {
         status: RobotStatus,
-        current: Vec<ContentHash>,
+        have: Vec<ContentHash>,
     },
     ChunkRequest {
         hash: ContentHash,

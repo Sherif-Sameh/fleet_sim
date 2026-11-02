@@ -10,6 +10,9 @@ use crate::types::ContentHash;
 /// Has [`Send`] and [`Sync`] as supertraits. Implementing types must have no short-lived
 /// references.
 pub trait Store: Send + Sync + 'static {
+    /// Returns a vector of hashes of complete packages.
+    fn have(&self) -> impl Future<Output = Vec<ContentHash>> + Send;
+
     /// Returns true if the package corresponding to `hash` is found and complete, false otherwise.
     fn is_complete(&self, hash: &ContentHash) -> impl Future<Output = bool> + Send;
 
