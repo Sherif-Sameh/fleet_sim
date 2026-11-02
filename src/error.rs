@@ -28,6 +28,9 @@ pub enum AgentError {
 
     #[error("failed to send to {0}")]
     TransmissionFailed(RobotId),
+
+    #[error("agent has stopped")]
+    AgentStopped,
 }
 
 pub type Result<T, E = AgentError> = std::result::Result<T, E>;

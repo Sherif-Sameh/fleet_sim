@@ -2,6 +2,7 @@ use tokio;
 use tokio::time::{Duration, sleep};
 
 use crate::types::*;
+pub mod agent;
 pub mod error;
 pub mod message;
 pub mod state;
