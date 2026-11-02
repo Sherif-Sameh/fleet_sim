@@ -93,6 +93,7 @@ impl UpdateState {
             }
             (S::Verifying { target }, E::Verified) => Ok(S::Staging { target: target }),
             (S::Staging { target }, E::Staged) => Ok(S::Activating { target: target }),
+            (S::Activating { target }, E::Activated) => Ok(S::HealthChecking { target }),
             (S::HealthChecking { .. }, E::HealthOk) => Ok(S::Inactive),
             (S::HealthChecking { target }, E::HealthFailed(reason)) => Ok(S::RolledBack {
                 target: target,
