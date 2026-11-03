@@ -209,7 +209,7 @@ where
                 self.sent_at = None;
                 match self.store.write_chunk(&hash, offset, &data).await {
                     Ok(new_len) => {
-                        self.transition(UpdateEvent::Progress(new_len)).unwrap();
+                        let _ = self.transition(UpdateEvent::Progress(new_len));
                     }
                     Err(_) => {}
                 }
@@ -284,25 +284,24 @@ where
             }
             UpdateState::Staging { .. } => {
                 self.stage().await;
-                self.transition(UpdateEvent::Staged).unwrap();
+                let _ = self.transition(UpdateEvent::Staged);
             }
             UpdateState::Activating { target } => {
                 self.status.previous = self.status.installed.clone();
                 self.activate().await;
                 self.status.installed = Some(target);
-                self.transition(UpdateEvent::Activated).unwrap();
+                let _ = self.transition(UpdateEvent::Activated);
             }
             UpdateState::HealthChecking { .. } => {
                 match tokio::time::timeout(self.cfg.health_check_timeout, self.health_check()).await
                 {
                     Ok(success) => {
                         if success {
-                            self.transition(UpdateEvent::HealthOk).unwrap();
+                            let _ = self.transition(UpdateEvent::HealthOk);
                         } else {
-                            self.transition(UpdateEvent::HealthFailed(String::from(
+                            let _ = self.transition(UpdateEvent::HealthFailed(String::from(
                                 "incompatible package",
-                            )))
-                            .unwrap();
+                            )));
                             self.status.installed = self.status.previous.clone();
                         }
                     }
