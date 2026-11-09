@@ -286,13 +286,13 @@ where
                 self.stage().await;
                 let _ = self.transition(UpdateEvent::Staged);
             }
-            UpdateState::Activating { target } => {
+            UpdateState::Activating { .. } => {
                 self.status.previous = self.status.installed.clone();
                 self.activate().await;
-                self.status.installed = Some(target);
                 let _ = self.transition(UpdateEvent::Activated);
             }
-            UpdateState::HealthChecking { .. } => {
+            UpdateState::HealthChecking { target } => {
+                self.status.installed = Some(target);
                 match tokio::time::timeout(self.cfg.health_check_timeout, self.health_check()).await
                 {
                     Ok(success) => {
