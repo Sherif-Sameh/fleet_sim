@@ -1,8 +1,11 @@
+use std::error::Error;
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-// use sha2::{Digest, Sha256};
+
+/// Custom Result type alias using a boxed dynamic error.
+pub type ResultDyn<T> = std::result::Result<T, Box<dyn Error + Send + Sync + 'static>>;
 
 /// Robot ID.
 ///
