@@ -1,29 +1,57 @@
-use tokio;
-use tokio::time::{Duration, sleep};
+use glam::Vec2;
+use tokio::time::Duration;
+use tracing::info;
+use tracing_subscriber::EnvFilter;
 
-use crate::types::*;
-pub mod types;
-
-async fn hello_world() {
-    sleep(Duration::from_secs(1)).await;
-    println!("Hello, world!");
-    let robot = RobotId(0);
-    let content_hash = ContentHash([0xaa; 32]);
-    let version = Version::from_string("1.32.1");
-    let package = Package::from_data("torch", version, &[0x2a; 200]);
-    let state = PackageState {
-        package: package.clone(),
-        revision: 60,
-    };
-    println!("Robot: {robot}");
-    println!("SHA-256: {content_hash}");
-    println!("Version: {version}");
-    println!("Package: {package}");
-    println!("State: {state}");
-}
+use fleet_sim::agent::{Agent, AgentConfig, AgentHandle};
+use fleet_sim::store::memory::MemoryStore;
+use fleet_sim::transport::radio::RadioNetwork;
+use fleet_sim::types::{PackageState, ResultDyn, RobotId, Version};
 
 #[tokio::main]
-async fn main() {
-    let handle = tokio::spawn(hello_world());
-    handle.await.unwrap();
+async fn main() -> ResultDyn<()> {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")),
+        )
+        .init();
+    // Setup robot network such that each robot has only a single neighbor in range
+    let (max_range, drop_prob) = (10.0, 0.03);
+    let net = RadioNetwork::new(max_range, drop_prob);
+    let mut agents: Vec<AgentHandle> = Vec::new();
+    let mut pkg_des = None;
+    for i in 0..5u32 {
+        let id = RobotId(i);
+        let store = MemoryStore::default();
+        if i == 0 {
+            // Only the first robot starts out holding the desired package
+            pkg_des =
+                Some(store.publish("cv2", Version::from_string("2.3.9"), vec![0xAB; 100_000]));
+        }
+        let transport = net.register(id, Vec2::new(i as f32 * 8.0, 0.0));
+        agents.push(Agent::spawn(id, AgentConfig::default(), store, transport));
+    }
+    // Publish the desired package state across the network
+    agents[0]
+        .request_update(PackageState {
+            package: pkg_des.unwrap(),
+            revision: 1,
+        })
+        .await?;
+    // Await for the desired package to propagate across the network
+    // and report the fleet's state at each timestep
+    for t in 0..12 {
+        tokio::time::sleep(Duration::from_secs(1)).await;
+        let line = agents
+            .iter()
+            .map(|a| {
+                let s = a.status();
+                let rev = s.desired.as_ref().map_or(0, |p| p.revision);
+                format!("{}[rev {rev}, {}]", s.id, s.state.name())
+            })
+            .collect::<Vec<_>>()
+            .join("  ");
+        info!("t={t}s  {line}\n");
+    }
+    Ok(())
 }
