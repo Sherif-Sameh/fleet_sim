@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use glam::Vec2;
 use tokio::time::Duration;
 use tracing::info;
@@ -6,10 +8,13 @@ use tracing_subscriber::EnvFilter;
 use fleet_sim::agent::{Agent, AgentConfig, AgentHandle};
 use fleet_sim::store::memory::MemoryStore;
 use fleet_sim::transport::radio::RadioNetwork;
-use fleet_sim::types::{PackageState, ResultDyn, RobotId, Version};
+use fleet_sim::types::{PackageState, RobotId, Version};
+
+/// Custom Result type alias using a boxed dynamic error.
+pub type ResultBox<T> = std::result::Result<T, Box<dyn Error + Send + Sync + 'static>>;
 
 #[tokio::main]
-async fn main() -> ResultDyn<()> {
+async fn main() -> ResultBox<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
             EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")),
