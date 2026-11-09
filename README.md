@@ -8,10 +8,10 @@
 
 ## Features
 - **Async Agents:** Asynchronous on-robot update agents, spawned via async `tokio` tasks.
-- **Decentralized Communication:** Desired package state and messages propagate through the fleet through gossip protocols.
+- **Decentralized Communication:** Desired package state and messages propagate through the fleet via gossip protocols.
 - **Offline Package Transfer:** Robot-to-robot robust package transfer through content-addressed memory.
 - **Simulated Package Installation:** Per-robot package installation state machine, with staging, rollback, and health check routines.
-- **Radio Communication:** Simulation lossy radio range-based communication.
+- **Radio Communication:** Simulates lossy radio range-based communication.
 
 ## Installation Instructions
 
